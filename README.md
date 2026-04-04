@@ -64,4 +64,4 @@ URL → Fetch Image → DeepAI API → Prompt Output
 ---
 
 👨‍💻 CREDIT
-"@ab_devs"
+"@j4ck_721s"
