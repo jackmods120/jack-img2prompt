@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
 from io import BytesIO
+import os
 
 app = Flask(__name__)
 
@@ -24,7 +25,13 @@ def img2txt():
         })
 
     try:
-        img = requests.get(image_url, timeout=20)
+        # 🔥 Headers بۆ download کردن (چارەسەری کێشەکە)
+        headers_img = {
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        img = requests.get(image_url, headers=headers_img, timeout=20)
+
         if img.status_code != 200:
             return jsonify({
                 "success": False,
@@ -40,10 +47,11 @@ def img2txt():
             "tool_description": "Get Image to Prompt by AI."
         }
 
+        # 🔐 API KEY
         headers = {
-    "api-key": "fe256fa3-fd5f-4418-a8c8-5152eb945fd6",
-    "User-Agent": "Mozilla/5.0"
-}
+            "api-key": "fe256fa3-fd5f-4418-a8c8-5152eb945fd6",
+            "User-Agent": "Mozilla/5.0"
+        }
 
         r = requests.post(API_URL, files=files, data=data, headers=headers, timeout=60)
 
