@@ -1,11 +1,11 @@
 from flask import Flask, request, jsonify
 import requests
 from io import BytesIO
-import os
 
 app = Flask(__name__)
 
-API_URL = "https://api.deepai.org/analyze-image-for-ads"
+# 🔥 API_URL پێویستە بەم شێوەیە بێت بۆ وەرگرتنی پڕۆمپت لە وێنە
+API_URL = "https://api.deepai.org/api/analyze-image-for-ads"
 
 @app.route("/")
 def home():
@@ -25,7 +25,7 @@ def img2txt():
         })
 
     try:
-        # 🔥 Headers بۆ download کردن (چارەسەری کێشەکە)
+        # 🔥 Headers بۆ download کردن
         headers_img = {
             "User-Agent": "Mozilla/5.0"
         }
@@ -38,22 +38,20 @@ def img2txt():
                 "error": "Failed to download image"
             })
 
+        # 🔥 بۆ دەناردنی وێنە بە DeepAI
         files = {
             "image": ("image.jpg", BytesIO(img.content))
         }
 
-        data = {
-            "tool_name": "IMAGE TO PROMPT",
-            "tool_description": "Get Image to Prompt by AI."
-        }
-
-        # 🔐 API KEY
+        # 🔐 API KEY (ئەمە ئەوەی تۆ نووسیوە، بەڵام دەتوانیت لە Environment Variable داینابێیت)
+        api_key = "fe256fa3-fd5f-4418-a8c8-5152eb945fd6"
+        
         headers = {
-            "api-key": "fe256fa3-fd5f-4418-a8c8-5152eb945fd6",
+            "api-key": api_key,
             "User-Agent": "Mozilla/5.0"
         }
 
-        r = requests.post(API_URL, files=files, data=data, headers=headers, timeout=60)
+        r = requests.post(API_URL, files=files, headers=headers, timeout=60)
 
         if r.status_code != 200:
             return jsonify({
@@ -62,10 +60,14 @@ def img2txt():
             })
 
         result = r.json()
-
+        
+        # 🔥 دەرهێنانی پڕۆمپت لە وەڵامەکە
         prompt = None
+        # هەندێک جار DeepAI لە "output"دا دەگەڕێت، نەک "descriptions"
         if result.get("descriptions"):
             prompt = result["descriptions"][0]
+        elif result.get("output"):
+            prompt = result["output"]
 
         return jsonify({
             "success": True,
